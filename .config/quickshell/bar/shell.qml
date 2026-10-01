@@ -1,6 +1,8 @@
 import Quickshell
 
 ShellRoot {
+    Launcher {}
+
     Variants {
         model: Quickshell.screens
 
