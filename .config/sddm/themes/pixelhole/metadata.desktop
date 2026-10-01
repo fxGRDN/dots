@@ -1,0 +1,12 @@
+[SddmGreeterTheme]
+Name=pixelhole
+Description=Pixel-art black hole login, matching the Quickshell lockscreen
+Author=felix
+License=GPL-3.0-or-later
+Type=sddm-theme
+Version=1.0
+ConfigFile=theme.conf
+MainScript=Main.qml
+Theme-Id=pixelhole
+Theme-API=2.0
+QtVersion=6
