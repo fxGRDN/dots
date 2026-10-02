@@ -52,9 +52,8 @@ hl.monitor({ output = "DP", mode = "1920x1080@60", position = "auto", scale = 1,
 
 local terminal = "kitty"
 local fileManager = "nautilus"
-local menu = "hyprlauncher"
 local browser = "zen-browser"
-local launcher = "hyprlauncher"
+local launcher = "qs -c bar ipc call launcher toggle"
 local uwsm = "uwsm app --"
 local bar = "qs -n -c bar"
 local restart_bar = "qs kill -c bar; " .. uwsm .. " " .. bar
@@ -297,7 +296,7 @@ local mainMod = "SUPER" -- Sets "Windows" key as main modifier
 -- See https://wiki.hypr.land/Configuring/Basics/Binds/ for more
 hl.bind(mainMod .. " + T", hl.dsp.exec_cmd(app(terminal)))
 hl.bind(mainMod .. " + B", hl.dsp.exec_cmd(app(browser)))
-hl.bind(mainMod .. " + A", hl.dsp.exec_cmd(app(launcher)))
+hl.bind(mainMod .. " + A", hl.dsp.exec_cmd(launcher))
 hl.bind(mainMod .. " + Q", hl.dsp.window.close())
 hl.bind(
     mainMod .. " + M",
@@ -305,11 +304,11 @@ hl.bind(
 )
 hl.bind(mainMod .. " + E", hl.dsp.exec_cmd(app(fileManager)))
 hl.bind(mainMod .. " + V", hl.dsp.window.float({ action = "toggle" }))
-hl.bind(mainMod .. " + R", hl.dsp.exec_cmd(app(menu)))
+hl.bind(mainMod .. " + R", hl.dsp.exec_cmd(launcher))
 hl.bind(mainMod .. " + P", hl.dsp.window.pseudo()) -- dwindle
 -- hl.bind(mainMod .. " + J", hl.dsp.layout("togglesplit")) -- dwindle
 hl.bind(mainMod .. " + L", hl.dsp.exec_cmd(hypr .. "/scripts/lock.sh"), { locked = true })
-hl.bind(mainMod .. " + SHIFT + R", hl.dsp.exec_cmd(restart_bar))
+hl.bind(mainMod .. " + CTRL + R", hl.dsp.exec_cmd(restart_bar))
 
 -- Move focus with mainMod + arrow keys
 hl.bind(mainMod .. " + left", hl.dsp.focus({ direction = "left" }))
@@ -358,6 +357,13 @@ hl.bind(mainMod .. " + SHIFT + L", hl.dsp.window.swap({ direction = "r" }))
 hl.bind(mainMod .. " + SHIFT + K", hl.dsp.window.swap({ direction = "u" }))
 hl.bind(mainMod .. " + SHIFT + J", hl.dsp.window.swap({ direction = "d" }))
 
+-- App scratchpads: started on first press, then shown/hidden; they keep running while hidden
+local scratchpad = hypr .. "/scripts/scratchpad.sh "
+hl.bind(mainMod .. " + SHIFT + M", hl.dsp.exec_cmd(scratchpad .. "music")) -- spotatui, also bar player right click
+hl.bind(mainMod .. " + SHIFT + D", hl.dsp.exec_cmd(scratchpad .. "chat")) -- concord
+hl.bind(mainMod .. " + SHIFT + N", hl.dsp.exec_cmd(scratchpad .. "notes")) -- notion
+hl.bind(mainMod .. " + SHIFT + R", hl.dsp.exec_cmd(scratchpad .. "rss")) -- eilmeldung
+
 -- Example special workspace (scratchpad)
 hl.bind(mainMod .. " + S", hl.dsp.workspace.toggle_special("magic"))
 hl.bind(mainMod .. " + SHIFT + S", hl.dsp.window.move({ workspace = "special:magic" }))
@@ -394,11 +400,12 @@ hl.bind(
 hl.bind("XF86MonBrightnessUp", hl.dsp.exec_cmd("brightnessctl -e4 -n2 set 5%+"), { locked = true, repeating = true })
 hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("brightnessctl -e4 -n2 set 5%-"), { locked = true, repeating = true })
 
--- Requires playerctl (bindl = locked)
-hl.bind("XF86AudioNext", hl.dsp.exec_cmd("playerctl next"), { locked = true })
-hl.bind("XF86AudioPause", hl.dsp.exec_cmd("playerctl play-pause"), { locked = true })
-hl.bind("XF86AudioPlay", hl.dsp.exec_cmd("playerctl play-pause"), { locked = true })
-hl.bind("XF86AudioPrev", hl.dsp.exec_cmd("playerctl previous"), { locked = true })
+-- Media keys go through the bar, so they control the same player it shows
+local media = "qs -c bar ipc call media "
+hl.bind("XF86AudioNext", hl.dsp.exec_cmd(media .. "next"), { locked = true })
+hl.bind("XF86AudioPause", hl.dsp.exec_cmd(media .. "toggle"), { locked = true })
+hl.bind("XF86AudioPlay", hl.dsp.exec_cmd(media .. "toggle"), { locked = true })
+hl.bind("XF86AudioPrev", hl.dsp.exec_cmd(media .. "previous"), { locked = true })
 
 --------------------------------
 ---- WINDOWS AND WORKSPACES ----
@@ -428,6 +435,43 @@ hl.window_rule({
     },
 
     no_focus = true,
+})
+
+hl.window_rule({
+    name = "float-volume-control",
+    match = { class = "^(org\\.pulseaudio\\.pavucontrol|pavucontrol|com\\.saivert\\.pwvucontrol)$" },
+
+    float = true,
+    center = true,
+    size = "900 600",
+})
+
+hl.window_rule({
+    name = "music-scratchpad",
+    match = { initial_class = "^spotatui$" },
+
+    workspace = "special:music",
+})
+
+hl.window_rule({
+    name = "chat-scratchpad",
+    match = { initial_class = "^concord$" },
+
+    workspace = "special:chat",
+})
+
+hl.window_rule({
+    name = "notes-scratchpad",
+    match = { initial_class = "^[Nn]otion$" },
+
+    workspace = "special:notes",
+})
+
+hl.window_rule({
+    name = "rss-scratchpad",
+    match = { initial_class = "^eilmeldung$" },
+
+    workspace = "special:rss",
 })
 
 -- Hyprland-run windowrule
