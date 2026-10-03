@@ -32,6 +32,7 @@ var icons = {
     bellSleep: icon(0xF009C),
     close: icon(0xF0156),
     keyboard: icon(0xF030C),
+    brightness: icon(0xF00DF),
     coffee: icon(0xF0176),
     coffeeOff: icon(0xF06CA),
     updates: icon(0xF0162),

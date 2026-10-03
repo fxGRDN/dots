@@ -3,6 +3,7 @@ import Quickshell
 ShellRoot {
     Launcher {}
     MediaIpc {}
+    Osd {}
     NotificationService { id: notificationService }
 
     Variants {
