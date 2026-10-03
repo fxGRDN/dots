@@ -315,6 +315,7 @@ PanelWindow {
                     }
 
                     Text {
+                        x: 12
                         anchors.verticalCenter: parent.verticalCenter
                         visible: psk.text === ""
                         text: "PASSWORD FOR " + (window.pskFor?.name ?? "").toUpperCase()

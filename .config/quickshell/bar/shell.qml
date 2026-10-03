@@ -5,6 +5,7 @@ ShellRoot {
     MediaIpc {}
     Osd {}
     Clipboard {}
+    Polkit {}
     NotificationService { id: notificationService }
     QuickSettings {
         id: quickSettingsPanel
