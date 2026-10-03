@@ -6,6 +6,8 @@ import "Theme.js" as Theme
 PanelWindow {
     id: bar
 
+    required property var notifications
+
     anchors {
         top: true
         left: true
@@ -39,7 +41,7 @@ PanelWindow {
         }
         spacing: 0
 
-        Notifications {}
+        Notifications { service: bar.notifications }
         Clock {}
         Updates {}
         IdleToggle { window: bar }
@@ -59,10 +61,12 @@ PanelWindow {
         }
         spacing: 0
 
+        Media {}
         SysStats {}
         BluetoothStatus {}
         Audio {}
         Network {}
         Battery {}
+        Keybinds { window: bar }
     }
 }

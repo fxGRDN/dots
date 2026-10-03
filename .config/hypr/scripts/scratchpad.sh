@@ -1,19 +1,24 @@
 #!/bin/sh
-# Usage: scratchpad.sh <music|chat|notes|rss>
+# Usage: scratchpad.sh <music|chat|notes|rss|mail>
 # Shows/hides an app on its own special workspace, starting it on first use.
 # Apps keep running while hidden. Window rules in hyprland.lua send each
 # class to its workspace.
+#
+# Terminal apps run in footclient windows of one shared foot server
+# (foot-server.socket), so each one costs ~2 MB instead of a whole terminal.
 
 case "$1" in
-    music) class=spotatui; cmd="kitty --class spotatui -e spotatui" ;;
-    chat)  class=concord;  cmd="kitty --class concord -e $HOME/.cargo/bin/concord" ;;
-    notes) class=notion;   cmd="notion-app" ;;
-    rss)   class=eilmeldung; cmd="kitty --class eilmeldung -e eilmeldung" ;;
-    *) echo "usage: $0 <music|chat|notes|rss>" >&2; exit 1 ;;
+    music) class=spotatui;   cmd="footclient --no-wait --app-id=spotatui spotatui" ;;
+    chat)  class=concord;    cmd="footclient --no-wait --app-id=concord $HOME/.cargo/bin/concord" ;;
+    notes) class=notion;     cmd="uwsm app -- notion-app" ;;
+    rss)   class=eilmeldung; cmd="footclient --no-wait --app-id=eilmeldung eilmeldung" ;;
+    # himalaya is a CLI, not a TUI: list the inbox, then stay in a shell for more commands.
+    mail)  class=himalaya;   cmd="footclient --no-wait --app-id=himalaya $HOME/.config/hypr/scripts/mail-shell.sh" ;;
+    *) echo "usage: $0 <music|chat|notes|rss|mail>" >&2; exit 1 ;;
 esac
 
 if ! hyprctl clients | grep -qix "[[:space:]]*initialClass: $class"; then
-    uwsm app -- $cmd >/dev/null 2>&1 &
+    $cmd >/dev/null 2>&1 &
     exit 0
 fi
 

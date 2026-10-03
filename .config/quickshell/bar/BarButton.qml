@@ -14,6 +14,8 @@ Item {
     property bool active: false
     // Reserve label width so changing text (e.g. a proportional clock) doesn't shift the bar.
     property real labelMinWidth: 0
+    // Elide long labels (e.g. track titles); 0 means unlimited.
+    property real labelMaxWidth: 0
 
     signal clicked(var mouse)
     signal wheel(var wheel)
@@ -42,7 +44,10 @@ Item {
             readonly property string shown: root.hovered && root.hoverLabel !== "" ? root.hoverLabel : root.label
             visible: shown !== ""
             anchors.verticalCenter: parent.verticalCenter
-            width: Math.max(implicitWidth, root.labelMinWidth)
+            width: root.labelMaxWidth > 0
+                ? Math.min(Math.max(implicitWidth, root.labelMinWidth), root.labelMaxWidth)
+                : Math.max(implicitWidth, root.labelMinWidth)
+            elide: Text.ElideRight
             horizontalAlignment: Text.AlignHCenter
             text: shown
             color: root.labelColor

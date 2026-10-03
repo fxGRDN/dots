@@ -55,7 +55,8 @@ local fileManager = "nautilus"
 local browser = "zen-browser"
 local launcher = "qs -c bar ipc call launcher toggle"
 local uwsm = "uwsm app --"
-local bar = "qs -n -c bar"
+-- Software rendering halves the bar's memory (no GL driver/context); it only repaints small areas.
+local bar = "env QT_QUICK_BACKEND=software qs -n -c bar"
 local restart_bar = "qs kill -c bar; " .. uwsm .. " " .. bar
 
 local function app(cmd)
@@ -69,8 +70,6 @@ end
 -- See https://wiki.hypr.land/Configuring/Basics/Autostart/
 -- exec-once equivalents: run once when Hyprland starts.
 hl.on("hyprland.start", function()
-    hl.exec_cmd(app("notion-app"))
-    hl.exec_cmd("nm-applet")
     hl.exec_cmd(app(bar))
     hl.exec_cmd(app("hyprsunset"))
     hl.exec_cmd(app("hypridle"))
@@ -169,8 +168,11 @@ hl.config({
 
     -- https://wiki.hypr.land/Configuring/Basics/Variables/#misc
     misc = {
-        force_default_wallpaper = 1, -- Set to 0 or 1 to disable the anime mascot wallpapers
-        disable_hyprland_logo = false, -- If true disables the random hyprland logo / anime girl background. :(
+        -- Plain void colour until awww draws the wallpaper, matching the login fade-out
+        force_default_wallpaper = 0,
+        disable_hyprland_logo = true,
+        disable_splash_rendering = true,
+        background_color = rgb(scheme.background),
         allow_session_lock_restore = true, -- lets SUPER+L relaunch the locker if it crashes
     },
 
@@ -294,29 +296,31 @@ hl.device({
 local mainMod = "SUPER" -- Sets "Windows" key as main modifier
 
 -- See https://wiki.hypr.land/Configuring/Basics/Binds/ for more
-hl.bind(mainMod .. " + T", hl.dsp.exec_cmd(app(terminal)))
-hl.bind(mainMod .. " + B", hl.dsp.exec_cmd(app(browser)))
-hl.bind(mainMod .. " + A", hl.dsp.exec_cmd(launcher))
-hl.bind(mainMod .. " + Q", hl.dsp.window.close())
+-- Descriptions feed the bar's keybind cheatsheet: "Group | Action", optionally
+-- "| Keys" to override the displayed keys (used for ranges like 1-0).
+hl.bind(mainMod .. " + T", hl.dsp.exec_cmd(app(terminal)), { description = "Apps | Terminal" })
+hl.bind(mainMod .. " + B", hl.dsp.exec_cmd(app(browser)), { description = "Apps | Browser" })
+hl.bind(mainMod .. " + E", hl.dsp.exec_cmd(app(fileManager)), { description = "Apps | File manager" })
+hl.bind(mainMod .. " + A", hl.dsp.exec_cmd(launcher), { description = "Apps | Launcher" })
+hl.bind(mainMod .. " + R", hl.dsp.exec_cmd(launcher), { description = "Apps | Launcher" })
+hl.bind(mainMod .. " + C", hl.dsp.exec_cmd(app("hyprpicker -a")), { description = "Apps | Color picker" })
+hl.bind(mainMod .. " + Q", hl.dsp.window.close(), { description = "Windows | Close" })
 hl.bind(
     mainMod .. " + M",
-    hl.dsp.exec_cmd("command -v hyprshutdown >/dev/null 2>&1 && hyprshutdown || hyprctl dispatch 'hl.dsp.exit()'")
+    hl.dsp.exec_cmd("command -v hyprshutdown >/dev/null 2>&1 && hyprshutdown || hyprctl dispatch 'hl.dsp.exit()'"),
+    { description = "System | Log out" }
 )
-hl.bind(mainMod .. " + E", hl.dsp.exec_cmd(app(fileManager)))
-hl.bind(mainMod .. " + V", hl.dsp.window.float({ action = "toggle" }))
-hl.bind(mainMod .. " + R", hl.dsp.exec_cmd(launcher))
-hl.bind(mainMod .. " + P", hl.dsp.window.pseudo()) -- dwindle
+hl.bind(mainMod .. " + V", hl.dsp.window.float({ action = "toggle" }), { description = "Windows | Toggle floating" })
+hl.bind(mainMod .. " + P", hl.dsp.window.pseudo(), { description = "Windows | Pseudo-tile" }) -- dwindle
 -- hl.bind(mainMod .. " + J", hl.dsp.layout("togglesplit")) -- dwindle
-hl.bind(mainMod .. " + L", hl.dsp.exec_cmd(hypr .. "/scripts/lock.sh"), { locked = true })
-hl.bind(mainMod .. " + CTRL + R", hl.dsp.exec_cmd(restart_bar))
+hl.bind(mainMod .. " + L", hl.dsp.exec_cmd(hypr .. "/scripts/lock.sh"), { locked = true, description = "System | Lock" })
+hl.bind(mainMod .. " + CTRL + R", hl.dsp.exec_cmd(restart_bar), { description = "System | Restart bar" })
 
 -- Move focus with mainMod + arrow keys
-hl.bind(mainMod .. " + left", hl.dsp.focus({ direction = "left" }))
+hl.bind(mainMod .. " + left", hl.dsp.focus({ direction = "left" }), { description = "Windows | Move focus | SUPER ARROWS" })
 hl.bind(mainMod .. " + right", hl.dsp.focus({ direction = "right" }))
 hl.bind(mainMod .. " + up", hl.dsp.focus({ direction = "up" }))
 hl.bind(mainMod .. " + down", hl.dsp.focus({ direction = "down" }))
-
-hl.bind(mainMod .. " + C", hl.dsp.exec_cmd(app("hyprpicker -a")))
 
 -- Screenshots
 local screenshotDir = "~/Pictures/Screenshots"
@@ -326,8 +330,9 @@ hl.bind(
     hl.dsp.exec_cmd(
         [[grim -g "$(slurp)" - | wl-copy && wl-paste > ]]
         .. screenshotDir
-        .. [[/Screenshot-$(date +%F_%T).png | dunstify "Screenshot of the region taken" -t 1000]]
-    )
+        .. [[/Screenshot-$(date +%F_%T).png && notify-send -t 1500 -a Screenshot "Region captured"]]
+    ),
+    { description = "System | Screenshot region" }
 )
 -- screenshot of the whole screen
 hl.bind(
@@ -335,46 +340,50 @@ hl.bind(
     hl.dsp.exec_cmd(
         [[grim - | wl-copy && wl-paste > ]]
         .. screenshotDir
-        .. [[/Screenshot-$(date +%F_%T).png | dunstify "Screenshot of whole screen taken" -t 1000]]
-    )
+        .. [[/Screenshot-$(date +%F_%T).png && notify-send -t 1500 -a Screenshot "Screen captured"]]
+    ),
+    { description = "System | Screenshot screen" }
 )
 
 -- Switch to next/previous workspace
-hl.bind(mainMod .. " + CTRL + left", hl.dsp.focus({ workspace = "r-1" }))
+hl.bind(mainMod .. " + CTRL + left", hl.dsp.focus({ workspace = "r-1" }), { description = "Workspaces | Previous / next | SUPER CTRL ARROWS" })
 hl.bind(mainMod .. " + CTRL + right", hl.dsp.focus({ workspace = "r+1" }))
 
 -- Switch workspaces with mainMod + [0-9]
 -- Move active window to a workspace with mainMod + SHIFT + [0-9]
 for i = 1, 10 do
     local key = i % 10 -- 10 maps to key 0
-    hl.bind(mainMod .. " + " .. key, hl.dsp.focus({ workspace = i }))
-    hl.bind(mainMod .. " + SHIFT + " .. key, hl.dsp.window.move({ workspace = i }))
+    hl.bind(mainMod .. " + " .. key, hl.dsp.focus({ workspace = i }),
+        i == 1 and { description = "Workspaces | Go to workspace | SUPER 1-0" } or nil)
+    hl.bind(mainMod .. " + SHIFT + " .. key, hl.dsp.window.move({ workspace = i }),
+        i == 1 and { description = "Workspaces | Move window there | SUPER SHIFT 1-0" } or nil)
 end
 
 -- Swap windows with mainMod + SHIFT + HJKL
-hl.bind(mainMod .. " + SHIFT + H", hl.dsp.window.swap({ direction = "l" }))
+hl.bind(mainMod .. " + SHIFT + H", hl.dsp.window.swap({ direction = "l" }), { description = "Windows | Swap | SUPER SHIFT HJKL" })
 hl.bind(mainMod .. " + SHIFT + L", hl.dsp.window.swap({ direction = "r" }))
 hl.bind(mainMod .. " + SHIFT + K", hl.dsp.window.swap({ direction = "u" }))
 hl.bind(mainMod .. " + SHIFT + J", hl.dsp.window.swap({ direction = "d" }))
 
 -- App scratchpads: started on first press, then shown/hidden; they keep running while hidden
 local scratchpad = hypr .. "/scripts/scratchpad.sh "
-hl.bind(mainMod .. " + SHIFT + M", hl.dsp.exec_cmd(scratchpad .. "music")) -- spotatui, also bar player right click
-hl.bind(mainMod .. " + SHIFT + D", hl.dsp.exec_cmd(scratchpad .. "chat")) -- concord
-hl.bind(mainMod .. " + SHIFT + N", hl.dsp.exec_cmd(scratchpad .. "notes")) -- notion
-hl.bind(mainMod .. " + SHIFT + R", hl.dsp.exec_cmd(scratchpad .. "rss")) -- eilmeldung
+hl.bind(mainMod .. " + SHIFT + M", hl.dsp.exec_cmd(scratchpad .. "music"), { description = "Scratchpads | Music (spotatui)" }) -- also bar player right click
+hl.bind(mainMod .. " + SHIFT + D", hl.dsp.exec_cmd(scratchpad .. "chat"), { description = "Scratchpads | Chat (concord)" })
+hl.bind(mainMod .. " + SHIFT + N", hl.dsp.exec_cmd(scratchpad .. "notes"), { description = "Scratchpads | Notes (Notion)" })
+hl.bind(mainMod .. " + SHIFT + R", hl.dsp.exec_cmd(scratchpad .. "rss"), { description = "Scratchpads | RSS (eilmeldung)" })
+hl.bind(mainMod .. " + SHIFT + E", hl.dsp.exec_cmd(scratchpad .. "mail"), { description = "Scratchpads | Mail (himalaya)" })
 
 -- Example special workspace (scratchpad)
-hl.bind(mainMod .. " + S", hl.dsp.workspace.toggle_special("magic"))
-hl.bind(mainMod .. " + SHIFT + S", hl.dsp.window.move({ workspace = "special:magic" }))
+hl.bind(mainMod .. " + S", hl.dsp.workspace.toggle_special("magic"), { description = "Scratchpads | Magic workspace" })
+hl.bind(mainMod .. " + SHIFT + S", hl.dsp.window.move({ workspace = "special:magic" }), { description = "Scratchpads | Move window to magic" })
 
 -- Scroll to the previous/next workspace with mainMod + scroll
-hl.bind(mainMod .. " + mouse_down", hl.dsp.focus({ workspace = "r+1" }))
+hl.bind(mainMod .. " + mouse_down", hl.dsp.focus({ workspace = "r+1" }), { description = "Workspaces | Cycle | SUPER SCROLL" })
 hl.bind(mainMod .. " + mouse_up", hl.dsp.focus({ workspace = "r-1" }))
 
 -- Move/resize windows with mainMod + LMB/RMB and dragging
-hl.bind(mainMod .. " + mouse:272", hl.dsp.window.drag(), { mouse = true })
-hl.bind(mainMod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true })
+hl.bind(mainMod .. " + mouse:272", hl.dsp.window.drag(), { mouse = true, description = "Windows | Drag to move" })
+hl.bind(mainMod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true, description = "Windows | Drag to resize" })
 
 -- Laptop multimedia keys for volume and LCD brightness (bindel = locked + repeating)
 hl.bind(
@@ -472,6 +481,13 @@ hl.window_rule({
     match = { initial_class = "^eilmeldung$" },
 
     workspace = "special:rss",
+})
+
+hl.window_rule({
+    name = "mail-scratchpad",
+    match = { initial_class = "^himalaya$" },
+
+    workspace = "special:mail",
 })
 
 -- Hyprland-run windowrule

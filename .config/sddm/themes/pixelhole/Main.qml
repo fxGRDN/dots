@@ -37,16 +37,34 @@ Rectangle {
         return count > 0 ? (index + step + count) % count : 0;
     }
 
+    // Fade to the void colour first and only then log in: SDDM tears the greeter
+    // down as soon as authentication succeeds, and Hyprland starts on the same colour.
     function login() {
         if (loginInProgress) return;
         loginInProgress = true;
         showFailure = false;
-        sddm.login(userName, input.text, sessionIndex);
+        fadeOut.restart();
+    }
+
+    SequentialAnimation {
+        id: fadeOut
+        NumberAnimation { target: curtain; property: "opacity"; to: 1; duration: 450; easing.type: Easing.InQuad }
+        ScriptAction { script: sddm.login(root.userName, input.text, root.sessionIndex) }
+    }
+
+    NumberAnimation {
+        id: fadeIn
+        target: curtain
+        property: "opacity"
+        to: 0
+        duration: 250
+        easing.type: Easing.OutQuad
     }
 
     Connections {
         target: sddm
         function onLoginFailed() {
+            fadeIn.restart();
             root.loginInProgress = false;
             root.showFailure = true;
             root.failedAttempts += 1;
@@ -329,6 +347,14 @@ Rectangle {
             hoverColor: pal.magenta
             onActivated: sddm.powerOff()
         }
+    }
+
+    Rectangle {
+        id: curtain
+        anchors.fill: parent
+        z: 100
+        color: pal.voidBlack
+        opacity: 0
     }
 
     component Selector: Text {

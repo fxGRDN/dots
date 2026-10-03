@@ -3,6 +3,8 @@
 // Colours taken from the pixelhole wallpaper (see hypr/scheme/current.lua).
 var bg = "#0c0808";
 var surface = "#160c0c";
+var raised = "#221210";
+var line = "#3a1a14";
 var text = "#ffe8c4";
 var subtext = "#c45a38";
 var dim = "#6a4040";
@@ -26,6 +28,10 @@ function icon(codepoint) {
 
 var icons = {
     bell: icon(0xF009A),
+    bellRing: icon(0xF009E),
+    bellSleep: icon(0xF009C),
+    close: icon(0xF0156),
+    keyboard: icon(0xF030C),
     coffee: icon(0xF0176),
     coffeeOff: icon(0xF06CA),
     updates: icon(0xF0162),
@@ -47,5 +53,9 @@ var icons = {
     ethernet: icon(0xF0200),
     battery: [icon(0xF007A), icon(0xF007B), icon(0xF007C), icon(0xF007D), icon(0xF007E),
               icon(0xF007F), icon(0xF0080), icon(0xF0081), icon(0xF0082), icon(0xF0079)],
-    batteryCharging: icon(0xF0084)
+    batteryCharging: icon(0xF0084),
+    play: icon(0xF040A),
+    pause: icon(0xF03E4),
+    skipNext: icon(0xF04AD),
+    skipPrevious: icon(0xF04AE)
 };
