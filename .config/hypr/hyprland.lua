@@ -73,6 +73,7 @@ hl.on("hyprland.start", function()
     hl.exec_cmd(app(bar))
     hl.exec_cmd(app("hyprsunset"))
     hl.exec_cmd(app("hypridle"))
+    hl.exec_cmd(app("wl-paste --watch cliphist store")) -- clipboard history for the bar's picker
     hl.exec_cmd(app("dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP"))
     hl.exec_cmd(app("systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP"))
 end)
@@ -304,6 +305,7 @@ hl.bind(mainMod .. " + E", hl.dsp.exec_cmd(app(fileManager)), { description = "A
 hl.bind(mainMod .. " + A", hl.dsp.exec_cmd(launcher), { description = "Apps | Launcher" })
 hl.bind(mainMod .. " + R", hl.dsp.exec_cmd(launcher), { description = "Apps | Launcher" })
 hl.bind(mainMod .. " + C", hl.dsp.exec_cmd(app("hyprpicker -a")), { description = "Apps | Color picker" })
+hl.bind(mainMod .. " + SHIFT + V", hl.dsp.exec_cmd("qs -c bar ipc call clipboard toggle"), { description = "Apps | Clipboard history" })
 hl.bind(mainMod .. " + Q", hl.dsp.window.close(), { description = "Windows | Close" })
 hl.bind(
     mainMod .. " + M",

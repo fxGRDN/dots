@@ -4,6 +4,7 @@ ShellRoot {
     Launcher {}
     MediaIpc {}
     Osd {}
+    Clipboard {}
     NotificationService { id: notificationService }
 
     Variants {
