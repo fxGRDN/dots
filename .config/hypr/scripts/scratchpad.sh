@@ -12,8 +12,7 @@ case "$1" in
     chat)  class=concord;    cmd="footclient --no-wait --app-id=concord $HOME/.cargo/bin/concord" ;;
     notes) class=notion;     cmd="uwsm app -- notion-app" ;;
     rss)   class=eilmeldung; cmd="footclient --no-wait --app-id=eilmeldung eilmeldung" ;;
-    # himalaya is a CLI, not a TUI: list the inbox, then stay in a shell for more commands.
-    mail)  class=himalaya;   cmd="footclient --no-wait --app-id=himalaya $HOME/.config/hypr/scripts/mail-shell.sh" ;;
+    mail)  class=meli;       cmd="footclient --no-wait --app-id=meli meli" ;;
     *) echo "usage: $0 <music|chat|notes|rss|mail>" >&2; exit 1 ;;
 esac
 

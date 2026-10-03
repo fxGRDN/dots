@@ -371,7 +371,7 @@ hl.bind(mainMod .. " + SHIFT + M", hl.dsp.exec_cmd(scratchpad .. "music"), { des
 hl.bind(mainMod .. " + SHIFT + D", hl.dsp.exec_cmd(scratchpad .. "chat"), { description = "Scratchpads | Chat (concord)" })
 hl.bind(mainMod .. " + SHIFT + N", hl.dsp.exec_cmd(scratchpad .. "notes"), { description = "Scratchpads | Notes (Notion)" })
 hl.bind(mainMod .. " + SHIFT + R", hl.dsp.exec_cmd(scratchpad .. "rss"), { description = "Scratchpads | RSS (eilmeldung)" })
-hl.bind(mainMod .. " + SHIFT + E", hl.dsp.exec_cmd(scratchpad .. "mail"), { description = "Scratchpads | Mail (himalaya)" })
+hl.bind(mainMod .. " + SHIFT + E", hl.dsp.exec_cmd(scratchpad .. "mail"), { description = "Scratchpads | Mail (meli)" })
 
 -- Example special workspace (scratchpad)
 hl.bind(mainMod .. " + S", hl.dsp.workspace.toggle_special("magic"), { description = "Scratchpads | Magic workspace" })
@@ -485,7 +485,7 @@ hl.window_rule({
 
 hl.window_rule({
     name = "mail-scratchpad",
-    match = { initial_class = "^himalaya$" },
+    match = { initial_class = "^meli$" },
 
     workspace = "special:mail",
 })
