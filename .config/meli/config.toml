@@ -1,0 +1,6 @@
+# All options: man 5 meli.conf
+# Accounts live in accounts.toml, which is private and not committed.
+include("accounts.toml")
+
+[notifications]
+script = "notify-send"
