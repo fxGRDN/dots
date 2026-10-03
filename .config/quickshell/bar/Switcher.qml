@@ -39,7 +39,9 @@ Scope {
         if (!open) return;
         const target = windows[index];
         open = false;
-        target?.wayland?.activate();
+        // Toplevel.activate() focuses without switching workspace; Hyprland's focus does both.
+        if (target?.address)
+            Hyprland.dispatch(`hl.dsp.focus({ window = "address:0x${target.address.replace(/^0x/, "")}" })`);
     }
 
     function remember() {
