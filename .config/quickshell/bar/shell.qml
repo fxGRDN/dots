@@ -1,11 +1,13 @@
 import Quickshell
 
 ShellRoot {
+    CaptureWarmup {}
     Launcher {}
     MediaIpc {}
     Osd {}
     Clipboard {}
     Polkit {}
+    Switcher {}
     NotificationService { id: notificationService }
     QuickSettings {
         id: quickSettingsPanel

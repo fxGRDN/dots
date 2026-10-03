@@ -307,6 +307,12 @@ hl.bind(mainMod .. " + R", hl.dsp.exec_cmd(launcher), { description = "Apps | La
 hl.bind(mainMod .. " + C", hl.dsp.exec_cmd(app("hyprpicker -a")), { description = "Apps | Color picker" })
 hl.bind(mainMod .. " + SHIFT + V", hl.dsp.exec_cmd("qs -c bar ipc call clipboard toggle"), { description = "Apps | Clipboard history" })
 hl.bind(mainMod .. " + Q", hl.dsp.window.close(), { description = "Windows | Close" })
+-- The bar's switcher picks the window when Alt is released
+local switcher = "qs -c bar ipc call switcher "
+hl.bind("ALT + Tab", hl.dsp.exec_cmd(switcher .. "next"), { description = "Windows | Switch (hold ALT)" })
+hl.bind("ALT + SHIFT + Tab", hl.dsp.exec_cmd(switcher .. "previous"))
+-- Backup for a quick tap where Alt is released before the switcher has keyboard focus
+hl.bind("ALT + ALT_L", hl.dsp.exec_cmd(switcher .. "commit"), { release = true, non_consuming = true })
 hl.bind(
     mainMod .. " + M",
     hl.dsp.exec_cmd("command -v hyprshutdown >/dev/null 2>&1 && hyprshutdown || hyprctl dispatch 'hl.dsp.exit()'"),
