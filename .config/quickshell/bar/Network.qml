@@ -3,9 +3,11 @@ import Quickshell
 import Quickshell.Networking
 import "Theme.js" as Theme
 
-// Hover shows the network name. Click opens nmtui.
+// Hover shows the network name. Click opens quick settings on the Wi-Fi tab.
 BarButton {
     id: root
+
+    required property var settings
 
     readonly property var device: {
         const devices = Networking.devices.values;
@@ -25,5 +27,7 @@ BarButton {
         : wired ? device.name
         : (network?.name ?? "") + " " + Math.round(strength * 100) + "%"
 
-    onClicked: Quickshell.execDetached(["kitty", "nmtui"])
+    active: settings.open && settings.tab === "wifi"
+
+    onClicked: settings.toggle("wifi")
 }

@@ -3,9 +3,11 @@ import Quickshell
 import Quickshell.Bluetooth
 import "Theme.js" as Theme
 
-// Left click: blueman-manager. Right click: toggle the adapter.
+// Left click: quick settings on the Bluetooth tab. Right click: toggle the adapter.
 BarButton {
     id: root
+
+    required property var settings
 
     readonly property var adapter: Bluetooth.defaultAdapter ?? (Bluetooth.adapters.values.length > 0 ? Bluetooth.adapters.values[0] : null)
     readonly property bool enabled: adapter?.enabled ?? false
@@ -19,11 +21,13 @@ BarButton {
     label: withBattery ? Math.round(withBattery.battery * 100) + "%" : ""
     hoverLabel: connected.length > 0 ? connected.map(d => d.name).join(", ") : ""
 
+    active: settings.open && settings.tab === "bluetooth"
+
     onClicked: event => {
         if (event.button === Qt.RightButton) {
             if (adapter) adapter.enabled = !adapter.enabled;
         } else {
-            Quickshell.execDetached(["blueman-manager"]);
+            settings.toggle("bluetooth");
         }
     }
 }

@@ -7,6 +7,7 @@ PanelWindow {
     id: bar
 
     required property var notifications
+    required property var quickSettings
 
     anchors {
         top: true
@@ -63,9 +64,9 @@ PanelWindow {
 
         Media {}
         SysStats {}
-        BluetoothStatus {}
-        Audio {}
-        Network {}
+        BluetoothStatus { settings: bar.quickSettings }
+        Audio { settings: bar.quickSettings }
+        Network { settings: bar.quickSettings }
         Battery {}
         Keybinds { window: bar }
     }

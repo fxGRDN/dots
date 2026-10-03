@@ -3,9 +3,11 @@ import Quickshell
 import Quickshell.Services.Pipewire
 import "Theme.js" as Theme
 
-// Scroll: volume ±5%. Left click: pwvucontrol. Right click: mute.
+// Scroll: volume ±5%. Left click: quick settings on the output tab. Right click: mute.
 BarButton {
     id: root
+
+    required property var settings
 
     readonly property var sink: Pipewire.defaultAudioSink
     readonly property real volume: sink?.audio?.volume ?? 0
@@ -18,11 +20,13 @@ BarButton {
     color: muted ? Theme.dim : Theme.text
     label: muted ? "MUTED" : Math.round(volume * 100) + "%"
 
+    active: settings.open && settings.tab === "output"
+
     onClicked: event => {
         if (event.button === Qt.RightButton) {
             if (sink?.audio) sink.audio.muted = !sink.audio.muted;
         } else {
-            Quickshell.execDetached(["pwvucontrol"]);
+            settings.toggle("output");
         }
     }
 

@@ -6,6 +6,10 @@ ShellRoot {
     Osd {}
     Clipboard {}
     NotificationService { id: notificationService }
+    QuickSettings {
+        id: quickSettingsPanel
+        notifications: notificationService
+    }
 
     Variants {
         model: Quickshell.screens
@@ -14,6 +18,7 @@ ShellRoot {
             required property var modelData
             screen: modelData
             notifications: notificationService
+            quickSettings: quickSettingsPanel
         }
     }
 }
